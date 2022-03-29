@@ -15,9 +15,12 @@ The package aims to improve a code organization and a visual clarity with Strate
 
 ## Features
 
-StgContext - a container for dependencies, that must be provided to any Strategy, can contain a payload and can be created with timeout, after expiration of it Strategy will not be executed.
-Strategy - a function, which will be executed after occurring event, that it can handle
-StrategyMixin - provides functionality to handle events with Strategies
+#### StgContext
+Container for dependencies, that must be provided to any Strategy, can contain a payload and can be created with timeout, after expiration of it Strategy will not be executed.
+#### Strategy
+Function, which will be executed after occurring event, that it can handle
+#### StrategyMixin
+Provides functionality to handle events with Strategies
 
 ## Usage
 
