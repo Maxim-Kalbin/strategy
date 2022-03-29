@@ -2,24 +2,26 @@ library strategy;
 
 import 'dart:collection';
 
-/// Can be provided to strategies, contain payload and the duration of a operation to execute
+/// Can be provided to strategies, contain payload and the duration of a operation to execute.
 class StgContext {
-  /// Use this to create an empty container and set execution timeout to all Strategies
+  /// Use this to create an empty container and to set execution timeout to all Strategies.
   StgContext.withTimeout(Duration timeout)
       : _timeout = timeout,
         _expires = DateTime.now().add(timeout);
 
-  /// Use this to create an empty container
+  /// Use this to create an empty container.
   StgContext.background() : _timeout = Duration.zero;
 
   final Duration _timeout;
 
   final HashMap<String, dynamic> _payload = HashMap<String, dynamic>();
 
+  /// With it you can check if the context contains key.
   bool containsKey(String key) => _payload.containsKey(key);
 
-  /// Use it to provide a new dependency to a Strategy through the container
   DateTime? _expires;
+
+  /// Use it to provide a new dependency to a Strategy through the container.
   void inject(String key, dynamic data, {bool replace = true}) {
     if (data != null) {
       if (_payload.containsKey(key) && !replace) {
@@ -33,7 +35,7 @@ class StgContext {
     }
   }
 
-  /// Use it to retrieve a dependency
+  /// Use it to retrieve a dependency.
   T find<T>(String key) {
     if (_payload.containsKey(key)) {
       final result = _payload[key];
@@ -49,16 +51,16 @@ class StgContext {
     }
   }
 
-  /// Use it to remove an unused dependency
+  /// Use it to remove an unused dependency.
   void delete(String key) {
     _payload.remove(key);
   }
 
-  /// Will return true if a timeout has been set and the function is expired
+  /// Will return true if a timeout has been set and the function is expired.
   bool get expired =>
       _expires != null ? _expires!.isBefore(DateTime.now()) : false;
 
-  /// After calling the method, the timeout will start counting from the beginning
+  /// After calling the method, the timeout will start counting from the beginning.
   void resetExpiration() {
     if (_expires != null) {
       _expires = DateTime.now().add(_timeout);
@@ -66,7 +68,7 @@ class StgContext {
   }
 }
 
-/// Simple interface to implement a strategy
+/// Simple interface to implement a strategy.
 ///
 /// Example:
 /// ```
@@ -101,6 +103,7 @@ abstract class Strategy {
     return Future.error(UnimplementedError());
   }
 
+  /// Will be called by the invoker when the event occurs.
   Future<StgContext> call(StgContext ctx) async {
     if (!ctx.expired) {
       return await _(ctx);
@@ -111,20 +114,20 @@ abstract class Strategy {
   }
 }
 
-/// Use this to add a strategy invocation functionality to a controller
+/// Use this to add a strategy invocation functionality to a controller.
 mixin StrategyMixin<EventType> {
-  /// Execution context of all Strategies, passed from one to another as it is called
+  /// Execution context of all Strategies, passed from one to another as it is called.
   StgContext context = StgContext.background();
 
   final SplayTreeMap<int, Type> _history = SplayTreeMap<int, Type>();
 
-  /// The consistent history of the events that was handled, contains their types
+  /// The consistent history of the events that was handled, contains their types.
   UnmodifiableMapView get history => UnmodifiableMapView(_history);
 
-  /// Compares the passed type with the type of the last event
+  /// Compares the passed type with the type of the last event.
   bool isNotAfter(Type event) => !isAfter(event);
 
-  /// Compares the passed type with the type of the last event
+  /// Compares the passed type with the type of the last event.
   bool isAfter(Type event) {
     if (_history.isNotEmpty) {
       return _history[_history.length - 1] == event;
@@ -133,10 +136,10 @@ mixin StrategyMixin<EventType> {
     }
   }
 
-  /// Dictionary of Strategies, that possibly can handle an occurred event
+  /// Dictionary of Strategies, that possibly can handle an occurred event.
   final Map<Type, Strategy> strategies = const <Type, Strategy>{};
 
-  /// The method will execute Strategies that agree to handle the event
+  /// The method will execute Strategies that agree to handle the event.
   Future<StgContext> invoke(EventType event) async {
     final Type eventType = event.runtimeType;
     if (strategies.containsKey(eventType)) {

@@ -1,6 +1,6 @@
 name: strategy
 description: The package aims to improve a code organization and a visual clarity with Strategy Template.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/Maxim-Kalbin/strategy
 
 environment:
@@ -8,8 +8,7 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
+
 
 dev_dependencies:
   flutter_test:
